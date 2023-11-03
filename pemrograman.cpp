@@ -13,7 +13,7 @@ int main ()
         cout << "Silakan masukkan operasi (+, -, *, /) atau 'Q' untuk Quit (keluar) : ";
         cin >> operasi;
 
-        if (operasi == 0)
+        if (operasi == 'Q')
         {
             cout << "Perhitungan selesai. Selamat tinggal!" << endl;
             break;
