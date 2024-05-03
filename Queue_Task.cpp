@@ -1,6 +1,10 @@
 #include <iostream>
 using namespace std;
 
+/* Name         : Aisya Rahma Noor Haqiqoh
+** Student ID   : 23/512665/TK/56342
+** Class        : A (Electrical Engineering) */
+
 // prepare a queue space
 struct queueLL 
 {
@@ -133,7 +137,7 @@ int main() {
     displayLL();
     dequeueLL();
     cout << "Size: " << size() << endl;
-    cout << "Is Empty: " << (isEmptyLL() ? "Yes" : "No") << endl;
+    cout << "Is Empty: " << (isEmptyLL() ? "Yes!\n" : "No!\n") << endl;
 
     return 0;
 }
