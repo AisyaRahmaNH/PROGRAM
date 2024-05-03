@@ -1,9 +1,12 @@
 #include <iostream>
 using namespace std;
 
-/* Name         : Aisya Rahma Noor Haqiqoh
-** Student ID   : 23/512665/TK/56342
-** Class        : A (Electrical Engineering) */
+/* Data Structure and Algorithm **
+**          Queue Task          **
+
+** Name         : Aisya Rahma Noor Haqiqoh    **
+** Student ID   : 23/512665/TK/56342          **
+** Class        : A (Electrical Engineering)  */
 
 // prepare a queue space
 struct queueLL 
