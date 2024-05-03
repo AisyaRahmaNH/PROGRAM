@@ -108,7 +108,7 @@ void displayLL() {
     cout << "\n" << endl;
 }
 
-// Check The Size
+// Check The Size and Empty
 int size() {
     int count = 0;
     queueLL* cur = head;
