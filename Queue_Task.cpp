@@ -18,7 +18,7 @@ struct queueLL
     queueLL *next;
 };
 
-int maxQueueLL = 25;
+int QUEUE_SIZE = 25;
 queueLL *head, *tail, *cur, *del, *newNode;
 
 // count Linked List
@@ -43,7 +43,7 @@ int countLL()
 
 // isFull Linked List
 bool isFullLL() {
-    if (countLL() == maxQueueLL) {
+    if (countLL() == QUEUE_SIZE) {
         return true;
     } else {
         return false;
@@ -100,7 +100,7 @@ void displayLL() {
         cout << "Quantity of queue data : " << countLL() << endl;
         cur = head;
         int number = 1;
-        while (number <= maxQueueLL) {
+        while (number <= QUEUE_SIZE) {
             if (cur != NULL) {
                 cout << number << ". " << cur->data << endl;
                 cur = cur->next;
@@ -139,8 +139,9 @@ int main() {
 
     displayLL();
     dequeueLL();
-    cout << "Size: " << size() << endl;
-    cout << "Is Empty: " << (isEmptyLL() ? "Yes!\n" : "No!\n") << endl;
+    cout << "The queue currently has " << size() << " entries \n";
+    cout << "Is the queue empty? " << (isEmptyLL() ? "Yes!\n" : "No!\n") << endl;
 
     return 0;
 }
+
