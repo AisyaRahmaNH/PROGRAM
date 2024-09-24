@@ -1,52 +1,77 @@
 #include <iostream>
-#include <vector>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
-struct ExpResult {
-    double a, b; // y = a * e^(bx)
-    double r2;
-};
-
-ExpResult exponentialRegression(const vector<double>& x, const vector<double>& y) {
+// Function to calculate the exponential regression coefficients
+void exponentialRegression(const vector<double>& x, const vector<double>& y, double& a, double& b) {
     int n = x.size();
-    double sumX = 0, sumLogY = 0, sumXLogY = 0, sumX2 = 0;
-
+    double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    vector<double> lnY(n);
+    
+    // Convert y to ln(y)
     for (int i = 0; i < n; ++i) {
+        lnY[i] = log(y[i]);
         sumX += x[i];
-        sumLogY += log(y[i]);
-        sumXLogY += x[i] * log(y[i]);
+        sumY += lnY[i];
+        sumXY += x[i] * lnY[i];
         sumX2 += x[i] * x[i];
     }
+    
+    b = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    a = exp((sumY - b * sumX) / n);
+}
 
-    double b = (n * sumXLogY - sumX * sumLogY) / (n * sumX2 - sumX * sumX);
-    double a = exp((sumLogY - b * sumX) / n);
+// Function to predict y using the exponential model y = a * exp(b * x)
+double predict(double a, double b, double x) {
+    return a * exp(b * x);
+}
 
-    // Calculate R^2
-    double ssTot = 0, ssRes = 0, meanLogY = sumLogY / n;
+// Function to compute statistical metrics
+void calculateMetrics(const vector<double>& x, const vector<double>& y, double a, double b) {
+    int n = x.size();
+    double Sy = 0, Syx = 0, mean_y = 0, sum_error = 0, SStot = 0, SSres = 0, r_squared, r, Sy_estimate;
+
     for (int i = 0; i < n; ++i) {
-        double logYPred = log(a) + b * x[i];
-        ssRes += pow(log(y[i]) - logYPred, 2);
-        ssTot += pow(log(y[i]) - meanLogY, 2);
+        mean_y += y[i];
     }
-    double r2 = 1 - (ssRes / ssTot);
+    mean_y /= n;
 
-    return {a, b, r2};
+    for (int i = 0; i < n; ++i) {
+        double y_pred = predict(a, b, x[i]);
+        SStot += pow(y[i] - mean_y, 2);
+        SSres += pow(y[i] - y_pred, 2);
+        Sy += pow(y[i] - mean_y, 2);
+        Syx += pow(y[i] - y_pred, 2);
+    }
+
+    r_squared = 1 - (SSres / SStot);
+    r = sqrt(r_squared);
+    Sy_estimate = sqrt(Syx / (n - 2));
+
+    cout << "Sy (Standard Deviation of y): " << sqrt(Sy / (n - 1)) << endl;
+    cout << "Syx (Standard Error of Estimate): " << Sy_estimate << endl;
+    cout << "r (Correlation Coefficient): " << r << endl;
+    cout << "r^2 (Coefficient of Determination): " << r_squared << endl;
 }
 
 int main() {
     vector<double> x = {0, 4, 8, 12, 16, 20};
     vector<double> y = {67, 84, 98, 125, 149, 185};
 
-    ExpResult result = exponentialRegression(x, y);
+    double a, b;
+    exponentialRegression(x, y, a, b);
 
-    cout << "Exponential Regression: y = " << result.a << " * e^(" << result.b << "x)\n";
-    cout << "R^2 = " << result.r2 << endl;
+    cout << "Exponential Regression Coefficients:" << endl;
+    cout << "A = " << a << endl;
+    cout << "B = " << b << endl;
 
-    // Prediction for 40 days
-    double prediction = result.a * exp(result.b * 40);
-    cout << "Prediction for 40 days: " << prediction << endl;
+    double prediction = predict(a, b, 40);
+    cout << "Predicted cell concentration after 40 days: " << prediction << " million cells" << endl;
+
+    calculateMetrics(x, y, a, b);
 
     return 0;
 }
+
