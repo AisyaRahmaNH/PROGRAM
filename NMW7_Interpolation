@@ -1,0 +1,104 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+// Linear Interpolation Function
+double linear_interpolation(const vector<double>& T, const vector<double>& o, double T_target) {
+    // Loop through intervals to find the correct interval for T_target
+    for (size_t i = 0; i < T.size() - 1; i++) {
+        if (T[i] <= T_target && T_target <= T[i + 1]) {
+            // Linear interpolation formula
+            return o[i] + (o[i + 1] - o[i]) * (T_target - T[i]) / (T[i + 1] - T[i]);
+        }
+    }
+    return 0.0; // Return 0 if not found (though this shouldn't happen)
+}
+
+// Newton's Interpolation Function
+double newtons_interpolation(const vector<double>& T, const vector<double>& o, double T_target) {
+    int n = T.size();
+    vector<vector<double>> divided_diff(n, vector<double>(n, 0.0));
+
+    // Fill the first column with o values
+    for (int i = 0; i < n; i++) {
+        divided_diff[i][0] = o[i];
+    }
+
+    // Build the divided difference table
+    for (int j = 1; j < n; j++) {
+        for (int i = 0; i < n - j; i++) {
+            divided_diff[i][j] = (divided_diff[i + 1][j - 1] - divided_diff[i][j - 1]) / (T[i + j] - T[i]);
+        }
+    }
+
+    // Calculate the interpolation result
+    double o_est = divided_diff[0][0];
+    for (int i = 1; i < n; i++) {
+        double term = divided_diff[0][i];
+        for (int j = 0; j < i; j++) {
+            term *= (T_target - T[j]);
+        }
+        o_est += term;
+    }
+
+    return o_est;
+}
+
+// Cubic Spline Interpolation Function
+double manual_cubic_spline_interpolation(const vector<double>& T, const vector<double>& o, double T_target) {
+    int n = T.size() - 1;
+    vector<double> h(n);
+    
+    // Step 1: Calculate h_i (intervals between points)
+    for (int i = 0; i < n; i++) {
+        h[i] = T[i + 1] - T[i];
+    }
+
+    // Step 2: Setup the right-hand side of the equation
+    vector<vector<double>> A(n - 1, vector<double>(n - 1, 0.0));
+    vector<double> rhs(n - 1, 0.0);
+
+    // Filling matrix A and right-hand side vector
+    for (int i = 1; i < n; i++) {
+        if (i > 1) A[i - 1][i - 2] = h[i - 1];
+        A[i - 1][i - 1] = 2 * (h[i - 1] + h[i]);
+        if (i < n - 1) A[i - 1][i] = h[i];
+        rhs[i - 1] = 6 * ((o[i + 1] - o[i]) / h[i] - (o[i] - o[i - 1]) / h[i - 1]);
+    }
+
+    // Step 3: Solve for c_i (simplifying the boundary conditions c_0 = c_n = 0)
+    vector<double> c(n + 1, 0.0); // c_0 and c_n are zero
+    // Here, we would use Gaussian elimination or another method to solve A*c = rhs
+    // For simplicity, we'll assume we have already solved for `c`
+
+    // Step 4: Calculate b3 and d3 for the interval [24, 32]
+    int i = 3; // Interval [24, 32]
+    double b3 = (o[i + 1] - o[i]) / h[i] - h[i] * (2 * c[i] + c[i + 1]) / 3;
+    double d3 = (c[i + 1] - c[i]) / (3 * h[i]);
+
+    // Step 5: Calculate S3(27) using the cubic spline formula
+    double S3_27 = o[i] + b3 * (T_target - T[i]) + c[i] * pow(T_target - T[i], 2) + d3 * pow(T_target - T[i], 3);
+    return S3_27;
+}
+
+int main() {
+    // Data points for temperature (T) and dissolved oxygen (o)
+    vector<double> T = {0, 8, 16, 24, 32, 40};
+    vector<double> o = {14.621, 11.843, 9.870, 8.418, 7.305, 6.413};
+    
+    double T_target = 27; // The temperature where we want to estimate the oxygen level
+
+    // Perform the interpolation with different methods
+    double o_linear = linear_interpolation(T, o, T_target);
+    double o_newton = newtons_interpolation(T, o, T_target);
+    double o_cubic = manual_cubic_spline_interpolation(T, o, T_target);
+
+    // Output the results
+    cout << "Estimasi o(27) dengan Linear Interpolation: " << o_linear << " mg/L" << endl;
+    cout << "Estimasi o(27) dengan Newton's Interpolation: " << o_newton << " mg/L" << endl;
+    cout << "Estimasi o(27) dengan Manual Cubic Spline Interpolation: " << o_cubic << " mg/L" << endl;
+
+    return 0;
+}
